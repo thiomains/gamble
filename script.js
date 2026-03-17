@@ -33,6 +33,22 @@ let autoSpin = false;
 let soundEnabled = true;
 let lastWinTime = 0;
 
+// ==================== BET MULTIPLIER ====================
+function getBetMultiplier() {
+    // Einsatz-Multiplikator für Gewinnberechnung
+    // 10 Coins = 0.75 (75% Gewinn)
+    // 50 Coins = 0.85 (85% Gewinn)
+    // 100 Coins = 1.0 (100% Gewinn)
+    // 500 Coins = 2.0 (200% Gewinn)
+    // 1000 Coins = 4.0 (400% Gewinn)
+
+    if (currentBet <= 10) return 0.75;
+    if (currentBet <= 50) return 0.85;
+    if (currentBet <= 100) return 1.0;
+    if (currentBet <= 500) return 2.0;
+    return 4.0; // currentBet >= 1000
+}
+
 // ==================== AUDIO CONTEXT ====================
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
@@ -219,10 +235,38 @@ function initializeReels() {
 
 // ==================== GAME FUNCTIONS ====================
 function getRandomSymbol() {
-    const totalWeight = SYMBOLS.reduce((sum, s) => sum + s.weight, 0);
+    // Gewinnchance massiv erhöhen bei niedrigen Einsätzen
+    // Niedriger Einsatz = viel mehr hochwertige Symbole
+    // Bei 10 Coins: ~60% Chance auf 3+ gleiche Symbole
+    // Bei 1000 Coins: Basis-Chance (sehr niedrig)
+
+    const lowBet = 10;
+    const highBet = 1000;
+    const factor = (highBet - currentBet) / (highBet - lowBet); // 1 bei 10, 0 bei 1000
+
+    // Aggressiver Boost für hochwertige Symbole bei niedrigen Einsätzen
+    // Faktor 15 statt 3, und invertierte Logik für niedrigwertige
+    const adjustedSymbols = SYMBOLS.map((s, index) => {
+        let newWeight = s.weight;
+
+        if (factor > 0) {
+            // Hochwertige Symbole (hinten im Array) massiv boosten
+            const highValueBoost = factor * (index + 1) * 15;
+            newWeight = s.weight + highValueBoost;
+
+            // Niedrigwertige Symbole (vorne im Array) etwas reduzieren
+            if (index < 2) {
+                newWeight = Math.max(5, s.weight * (1 - factor * 0.3));
+            }
+        }
+
+        return { ...s, weight: newWeight };
+    });
+
+    const totalWeight = adjustedSymbols.reduce((sum, s) => sum + s.weight, 0);
     let random = Math.random() * totalWeight;
 
-    for (const symbol of SYMBOLS) {
+    for (const symbol of adjustedSymbols) {
         random -= symbol.weight;
         if (random <= 0) {
             return symbol;
@@ -480,7 +524,8 @@ function calculateWin(results) {
         }
     }
 
-    const winAmount = currentBet * multiplier * comboMultiplier;
+    const betMultiplier = getBetMultiplier();
+    const winAmount = currentBet * multiplier * comboMultiplier * betMultiplier;
 
     return {
         amount: winAmount,
