@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 \"C:\\\\Users\\\\thioc\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.0.1\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"gambling casino slot machine entertainment vibrant\" --design-system -p \"Slot Machine\")",
+      "Bash(python \"C:\\\\Users\\\\thioc\\\\.claude\\\\plugins\\\\cache\\\\ui-ux-pro-max-skill\\\\ui-ux-pro-max\\\\2.0.1\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"gambling casino slot machine entertainment vibrant\" --design-system -p \"Slot Machine\")"
+    ]
+  }
+}

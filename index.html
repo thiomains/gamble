@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 MEGA SLOTS - High Stakes! 🔥</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-particles" id="bgParticles"></div>
+    <div class="ambient-light"></div>
+
+    <!-- Screen Flash Overlay -->
+    <div class="screen-flash" id="screenFlash"></div>
+
+    <!-- Floating Text Container -->
+    <div class="floating-text-container" id="floatingTextContainer"></div>
+
+    <div class="container">
+        <!-- Level Progress -->
+        <div class="level-bar">
+            <div class="level-info">
+                <span class="level-badge">⭐ LEVEL <span id="levelNum">1</span></span>
+                <span class="xp-text"><span id="currentXP">0</span> / <span id="nextLevelXP">100</span> XP</span>
+            </div>
+            <div class="xp-bar">
+                <div class="xp-fill" id="xpFill"></div>
+            </div>
+        </div>
+
+        <header>
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <h1 class="main-title">
+                    <span class="title-letter">M</span><span class="title-letter">E</span><span class="title-letter">G</span><span class="title-letter">A</span>
+                    <span class="title-spacer"></span>
+                    <span class="title-letter">S</span><span class="title-letter">L</span><span class="title-letter">O</span><span class="title-letter">T</span><span class="title-letter">S</span>
+                </h1>
+            </div>
+            <div class="subtitle-container">
+                <p class="subtitle">💎 HIGH STAKES • MAXIMUM THRILLS 💎</p>
+            </div>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-icon">🔥</span>
+                <span class="stat-label">Win Streak</span>
+                <span class="stat-value" id="winStreak">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-label">Spins</span>
+                <span class="stat-value" id="totalSpins">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">🏆</span>
+                <span class="stat-label">Jackpots</span>
+                <span class="stat-value" id="jackpotCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon">📈</span>
+                <span class="stat-label">Biggest Win</span>
+                <span class="stat-value" id="biggestWin">0</span>
+            </div>
+        </div>
+
+        <!-- Daily Bonus -->
+        <div class="daily-bonus" id="dailyBonus">
+            <div class="bonus-content">
+                <span class="bonus-icon">🎁</span>
+                <span class="bonus-text">Daily Bonus Ready! +<span class="bonus-amount">50</span> Coins</span>
+                <button class="claim-btn" onclick="claimDailyBonus()">CLAIM NOW!</button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <!-- Coin Display -->
+            <div class="coin-display">
+                <div class="coin-box" id="coinBox">
+                    <div class="coin-shine"></div>
+                    <span class="coin-icon">💰</span>
+                    <span class="coin-amount" id="coinAmount">100</span>
+                    <span class="coin-label">COINS</span>
+                </div>
+            </div>
+
+            <!-- Game Tabs -->
+            <div class="game-tabs">
+                <button class="game-tab active" id="slotsTab" onclick="switchGame('slots')">🎰 SLOTS</button>
+                <button class="game-tab" id="rouletteTab" onclick="switchGame('roulette')">🎡 ROULETTE</button>
+            </div>
+
+            <!-- Combo Multiplier -->
+            <div class="combo-display" id="comboDisplay">
+                <div class="combo-text">COMBO x<span id="comboMultiplier">1</span></div>
+                <div class="combo-bar">
+                    <div class="combo-fill" id="comboFill"></div>
+                </div>
+            </div>
+
+            <!-- Slot Machine -->
+            <div class="game-section" id="slotsSection">
+            <div class="slot-machine" id="slotMachine">
+                <div class="machine-frame">
+                    <div class="frame-light top-left"></div>
+                    <div class="frame-light top-right"></div>
+                    <div class="frame-light bottom-left"></div>
+                    <div class="frame-light bottom-right"></div>
+
+                    <div class="reels-container">
+                        <div class="reel" id="reel1"></div>
+                        <div class="reel" id="reel2"></div>
+                        <div class="reel" id="reel3"></div>
+                        <div class="reel" id="reel4"></div>
+                        <div class="reel" id="reel5"></div>
+                    </div>
+
+                    <!-- Win Lines -->
+                    <div class="win-lines">
+                        <div class="win-line" id="winLine1"></div>
+                        <div class="win-line" id="winLine2"></div>
+                        <div class="win-line" id="winLine3"></div>
+                    </div>
+                </div>
+
+                <!-- Lever -->
+                <div class="lever-container" id="leverContainer">
+                    <div class="lever-base"></div>
+                    <div class="lever" id="lever">
+                        <div class="lever-handle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bet Selection -->
+            <div class="bet-section">
+                <p class="bet-label">💵 WÄHLE DEINEN EINSATZ</p>
+                <div class="bet-buttons">
+                    <button class="bet-btn" data-bet="10" onclick="selectBet(10)">
+                        <span class="bet-glow"></span>
+                        <span class="bet-amount">10</span>
+                        <span class="bet-currency">COINS</span>
+                    </button>
+                    <button class="bet-btn" data-bet="50" onclick="selectBet(50)">
+                        <span class="bet-glow"></span>
+                        <span class="bet-amount">50</span>
+                        <span class="bet-currency">COINS</span>
+                    </button>
+                    <button class="bet-btn active" data-bet="100" onclick="selectBet(100)">
+                        <span class="bet-glow"></span>
+                        <span class="bet-amount">100</span>
+                        <span class="bet-currency">COINS</span>
+                    </button>
+                    <button class="bet-btn high-roller" data-bet="500" onclick="selectBet(500)">
+                        <span class="bet-glow"></span>
+                        <span class="bet-amount">500</span>
+                        <span class="bet-currency">HIGH ROLLER</span>
+                    </button>
+                    <button class="bet-btn max-bet" data-bet="1000" onclick="selectBet(1000)">
+                        <span class="bet-glow"></span>
+                        <span class="bet-amount">MAX</span>
+                        <span class="bet-currency">1000 COINS</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spin Button -->
+            <button class="spin-btn" id="spinBtn" onclick="spin()">
+                <div class="spin-bg"></div>
+                <div class="spin-particles" id="spinParticles"></div>
+                <span class="spin-text">
+                    <span class="spin-icon">🎰</span>
+                    <span class="spin-word">SPIN</span>
+                    <span class="spin-icon">🎰</span>
+                </span>
+                <div class="spin-ripple"></div>
+            </button>
+
+            <!-- Hot Streak Indicator -->
+            <div class="hot-streak" id="hotStreak">
+                <div class="hot-streak-text">🔥 HOT STREAK! 🔥</div>
+                <div class="hot-streak-sub">All wins multiplied!</div>
+            </div>
+
+            <!-- Result Display -->
+            <div class="result-display" id="resultDisplay">
+                <div class="result-glow"></div>
+                <span class="result-text" id="resultText">Bereit für den JACKPOT? 🎰</span>
+            </div>
+
+            <!-- Last Wins Display -->
+            <div class="last-wins" id="lastWins">
+                <div class="last-wins-title">Letzte Gewinne</div>
+                <div class="last-wins-list" id="lastWinsList"></div>
+            </div>
+
+            <!-- Paytable -->
+            <div class="paytable-container">
+                <button class="paytable-toggle" onclick="togglePaytable()">
+                    <span>📋 GEWINNTABELLE</span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="paytable" id="paytable">
+                    <div class="paytable-grid">
+                        <div class="pay-item">
+                            <span class="pay-symbols">🍒🍒🍒...</span>
+                            <span class="pay-multiplier">x2</span>
+                        </div>
+                        <div class="pay-item">
+                            <span class="pay-symbols">🍋🍋🍋...</span>
+                            <span class="pay-multiplier">x3</span>
+                        </div>
+                        <div class="pay-item">
+                            <span class="pay-symbols">🍇🍇🍇...</span>
+                            <span class="pay-multiplier">x4</span>
+                        </div>
+                        <div class="pay-item">
+                            <span class="pay-symbols">🔔🔔🔔...</span>
+                            <span class="pay-multiplier">x5</span>
+                        </div>
+                        <div class="pay-item">
+                            <span class="pay-symbols">💎💎💎...</span>
+                            <span class="pay-multiplier">x10</span>
+                        </div>
+                        <div class="pay-item">
+                            <span class="pay-symbols">💎💎💎💎</span>
+                            <span class="pay-multiplier">x25</span>
+                        </div>
+                        <div class="pay-item jackpot-item">
+                            <span class="pay-symbols">7️⃣7️⃣7️⃣...</span>
+                            <span class="pay-multiplier">x50</span>
+                        </div>
+                        <div class="pay-item jackpot-item mega">
+                            <span class="pay-symbols">7️⃣7️⃣7️⃣7️⃣7️⃣</span>
+                            <span class="pay-multiplier">MEGA JACKPOT!</span>
+                        </div>
+                    </div>
+                    <p class="paytable-note">🎰 Symbole müssen von LINKS zusammenhängend sein! | 3+ gleiche = Gewinn | Combo-Bonus bei Gewinnserien!</p>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls">
+                <button class="control-btn" onclick="toggleAutoSpin()">
+                    <span id="autoSpinIcon">▶️</span>
+                    <span id="autoSpinText">Auto Spin</span>
+                </button>
+                <button class="control-btn reset" onclick="resetCoins()">
+                    <span>🔄</span>
+                    <span>Reset</span>
+                </button>
+                <button class="control-btn" onclick="toggleSound()">
+                    <span id="soundIcon">🔊</span>
+                    <span id="soundText">Sound ON</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Roulette Section -->
+        <div class="game-section" id="rouletteSection" style="display: none;">
+            <h2 class="section-title">🎡 ROULETTE 🎡</h2>
+
+            <!-- Roulette Wheel -->
+            <div class="roulette-container">
+                <div class="wheel-pointer" id="wheelPointer" title="Ball lands here">▼</div>
+                <div class="roulette-wheel" id="rouletteWheel">
+                    <div class="wheel-inner"></div>
+                    <div class="wheel-ball" id="wheelBall"></div>
+                    <div class="wheel-center"></div>
+                </div>
+                <div class="roulette-result" id="rouletteResult">-</div>
+            </div>
+
+            <!-- Roulette Betting Table -->
+            <div class="roulette-table">
+                <!-- Zero -->
+                <div class="roulette-zero" data-bet="0" onclick="placeRouletteBet('number', 0)">0</div>
+
+                <!-- Numbers Grid -->
+                <div class="roulette-numbers">
+                    <!-- Row 1: 3,6,9,12,15,18,21,24,27,30,33,36 -->
+                    <div class="roulette-number red" data-bet="3" onclick="placeRouletteBet('number', 3)">3</div>
+                    <div class="roulette-number black" data-bet="6" onclick="placeRouletteBet('number', 6)">6</div>
+                    <div class="roulette-number red" data-bet="9" onclick="placeRouletteBet('number', 9)">9</div>
+                    <div class="roulette-number red" data-bet="12" onclick="placeRouletteBet('number', 12)">12</div>
+                    <div class="roulette-number black" data-bet="15" onclick="placeRouletteBet('number', 15)">15</div>
+                    <div class="roulette-number red" data-bet="18" onclick="placeRouletteBet('number', 18)">18</div>
+                    <div class="roulette-number red" data-bet="21" onclick="placeRouletteBet('number', 21)">21</div>
+                    <div class="roulette-number black" data-bet="24" onclick="placeRouletteBet('number', 24)">24</div>
+                    <div class="roulette-number red" data-bet="27" onclick="placeRouletteBet('number', 27)">27</div>
+                    <div class="roulette-number red" data-bet="30" onclick="placeRouletteBet('number', 30)">30</div>
+                    <div class="roulette-number black" data-bet="33" onclick="placeRouletteBet('number', 33)">33</div>
+                    <div class="roulette-number red" data-bet="36" onclick="placeRouletteBet('number', 36)">36</div>
+
+                    <!-- Row 2: 2,5,8,11,14,17,20,23,26,29,32,35 -->
+                    <div class="roulette-number black" data-bet="2" onclick="placeRouletteBet('number', 2)">2</div>
+                    <div class="roulette-number red" data-bet="5" onclick="placeRouletteBet('number', 5)">5</div>
+                    <div class="roulette-number black" data-bet="8" onclick="placeRouletteBet('number', 8)">8</div>
+                    <div class="roulette-number black" data-bet="11" onclick="placeRouletteBet('number', 11)">11</div>
+                    <div class="roulette-number red" data-bet="14" onclick="placeRouletteBet('number', 14)">14</div>
+                    <div class="roulette-number black" data-bet="17" onclick="placeRouletteBet('number', 17)">17</div>
+                    <div class="roulette-number black" data-bet="20" onclick="placeRouletteBet('number', 20)">20</div>
+                    <div class="roulette-number red" data-bet="23" onclick="placeRouletteBet('number', 23)">23</div>
+                    <div class="roulette-number black" data-bet="26" onclick="placeRouletteBet('number', 26)">26</div>
+                    <div class="roulette-number black" data-bet="29" onclick="placeRouletteBet('number', 29)">29</div>
+                    <div class="roulette-number red" data-bet="32" onclick="placeRouletteBet('number', 32)">32</div>
+                    <div class="roulette-number black" data-bet="35" onclick="placeRouletteBet('number', 35)">35</div>
+
+                    <!-- Row 3: 1,4,7,10,13,16,19,22,25,28,31,34 -->
+                    <div class="roulette-number red" data-bet="1" onclick="placeRouletteBet('number', 1)">1</div>
+                    <div class="roulette-number black" data-bet="4" onclick="placeRouletteBet('number', 4)">4</div>
+                    <div class="roulette-number red" data-bet="7" onclick="placeRouletteBet('number', 7)">7</div>
+                    <div class="roulette-number black" data-bet="10" onclick="placeRouletteBet('number', 10)">10</div>
+                    <div class="roulette-number black" data-bet="13" onclick="placeRouletteBet('number', 13)">13</div>
+                    <div class="roulette-number red" data-bet="16" onclick="placeRouletteBet('number', 16)">16</div>
+                    <div class="roulette-number red" data-bet="19" onclick="placeRouletteBet('number', 19)">19</div>
+                    <div class="roulette-number black" data-bet="22" onclick="placeRouletteBet('number', 22)">22</div>
+                    <div class="roulette-number red" data-bet="25" onclick="placeRouletteBet('number', 25)">25</div>
+                    <div class="roulette-number black" data-bet="28" onclick="placeRouletteBet('number', 28)">28</div>
+                    <div class="roulette-number black" data-bet="31" onclick="placeRouletteBet('number', 31)">31</div>
+                    <div class="roulette-number red" data-bet="34" onclick="placeRouletteBet('number', 34)">34</div>
+                </div>
+
+                <!-- Outside Bets -->
+                <div class="roulette-outside">
+                    <div class="roulette-bet" data-bet="1-18" onclick="placeRouletteBet('range', '1-18')">1-18</div>
+                    <div class="roulette-bet" data-bet="even" onclick="placeRouletteBet('even', 'even')">EVEN</div>
+                    <div class="roulette-bet red" data-bet="red" onclick="placeRouletteBet('color', 'red')">🔴 RED</div>
+                    <div class="roulette-bet black" data-bet="black" onclick="placeRouletteBet('color', 'black')">⚫ BLACK</div>
+                    <div class="roulette-bet" data-bet="odd" onclick="placeRouletteBet('odd', 'odd')">ODD</div>
+                    <div class="roulette-bet" data-bet="19-36" onclick="placeRouletteBet('range', '19-36')">19-36</div>
+                </div>
+
+                <!-- Dozen Bets -->
+                <div class="roulette-dozens">
+                    <div class="roulette-bet" data-bet="1st12" onclick="placeRouletteBet('dozen', '1st')">1st 12</div>
+                    <div class="roulette-bet" data-bet="2nd12" onclick="placeRouletteBet('dozen', '2nd')">2nd 12</div>
+                    <div class="roulette-bet" data-bet="3rd12" onclick="placeRouletteBet('dozen', '3rd')">3rd 12</div>
+                </div>
+            </div>
+
+            <!-- Current Bets Display -->
+            <div class="roulette-bets-display">
+                <div class="current-bets-title">💵 Deine Wetten</div>
+                <div class="current-bets-list" id="rouletteBetsList">Keine Wetten</div>
+                <div class="total-bet">Gesamteinsatz: <span id="rouletteTotalBet">0</span> Coins</div>
+            </div>
+
+            <!-- Roulette Controls -->
+            <div class="roulette-controls">
+                <button class="roulette-spin-btn" id="rouletteSpinBtn" onclick="spinRoulette()">
+                    🎡 DREHEN
+                </button>
+                <button class="roulette-clear-btn" onclick="clearRouletteBets()">
+                    🗑️ LÖSCHEN
+                </button>
+            </div>
+
+            <!-- Roulette History -->
+            <div class="roulette-history">
+                <div class="history-title">📜 Letzte Zahlen</div>
+                <div class="history-numbers" id="rouletteHistory"></div>
+            </div>
+        </div>
+
+        <footer>
+            <p>🎰 GLÜCKsspiel kann süchtig machen • Spiele verantwortungsvoll 🎰</p>
+        </footer>
+    </div>
+
+    <!-- Big Win Overlay -->
+    <div class="big-win-overlay" id="bigWinOverlay">
+        <div class="big-win-content">
+            <div class="big-win-stars" id="bigWinStars"></div>
+            <h2 class="big-win-title" id="bigWinTitle">BIG WIN!</h2>
+            <div class="big-win-amount" id="bigWinAmount">+500</div>
+            <div class="big-win-coins" id="bigWinCoins"></div>
+        </div>
+    </div>
+
+    <!-- Jackpot Overlay -->
+    <div class="jackpot-overlay" id="jackpotOverlay">
+        <div class="jackpot-bg"></div>
+        <div class="jackpot-content">
+            <div class="jackpot-crown">👑</div>
+            <h2 class="jackpot-title">
+                <span>J</span><span>A</span><span>C</span><span>K</span><span>P</span><span>O</span><span>T</span>
+                <span>!</span><span>!</span><span>!</span>
+            </h2>
+            <div class="jackpot-amount" id="jackpotAmount">+10000</div>
+            <div class="jackpot-subtitle">DU HAST DEN MEGA JACKPOT GEKNACKT!</div>
+            <button class="jackpot-continue" onclick="closeJackpotOverlay()">WEITER SPIELEN →</button>
+        </div>
+        <div class="jackpot-coins" id="jackpotCoins"></div>
+    </div>
+
+    <!-- Debug Panel -->
+    <div id="debugPanel" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; z-index: 9999; max-width: 400px; border: 1px solid #0f0; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong>🔍 DEBUG (X zum Schließen)</strong>
+            <button onclick="toggleDebug()" style="background: #333; color: #fff; border: 1px solid #666; padding: 2px 8px; cursor: pointer; font-size: 10px;">✕</button>
+        </div>
+        <div id="debugContent">
+            <div><b>Results Array:</b> <span id="debugResults">-</span></div>
+            <div><b>Symbol Names:</b> <span id="debugNames">-</span></div>
+            <div><b>Win Check:</b> <span id="debugWin">-</span></div>
+            <div><b>Win Amount:</b> <span id="debugAmount">-</span></div>
+            <div><b>Match Count:</b> <span id="debugCount">-</span></div>
+            <div><b>Start Index:</b> <span id="debugStart">-</span></div>
+            <hr style="border-color: #0f0; margin: 8px 0;">
+            <div style="color: #ff0;"><b>🎰 ROULETTE DEBUG</b></div>
+            <div><b>Random Index:</b> <span id="debugRouletteIndex">-</span></div>
+            <div><b>Result Number:</b> <span id="debugRouletteNumber">-</span></div>
+            <div><b>Result Color:</b> <span id="debugRouletteColor">-</span></div>
+            <div><b>Wheel Angle:</b> <span id="debugWheelAngle">-</span></div>
+            <div><b>Ball Angle:</b> <span id="debugBallAngle">-</span></div>
+            <div><b>Segment at Top:</b> <span id="debugSegmentTop">-</span></div>
+            <div><b>Ball Land Position:</b> <span id="debugBallLand">-</span></div>
+            <div style="margin-top: 8px;">
+                <button onclick="toggleWheelNumbers()" style="background: #333; color: #0f0; border: 1px solid #0f0; padding: 4px 8px; cursor: pointer; font-size: 10px;">Toggle Wheel Numbers</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
