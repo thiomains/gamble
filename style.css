@@ -1509,6 +1509,16 @@ footer {
     .jackpot-amount {
         font-size: 4rem;
     }
+
+    /* Mobile reel spin animation with correct 90px height */
+    @keyframes reelSpin {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-90px);
+        }
+    }
 }
 
 /* Particle Effects */

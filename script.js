@@ -391,7 +391,7 @@ async function stopReelWithBounce(inner, result, reelIndex) {
 
         // Calculate total height to spin through
         const totalSymbols = slowdownSymbols + 3;
-        const symbolHeight = 140;
+        const symbolHeight = window.innerWidth <= 768 ? 90 : 140; // Responsive for mobile
         const totalHeight = totalSymbols * symbolHeight;
 
         // Start position: show the result symbol in center
