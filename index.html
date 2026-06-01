@@ -403,11 +403,12 @@
     </div>
 
     <!-- Debug Panel -->
-    <div id="debugPanel" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.9); color: #0f0; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; z-index: 9999; max-width: 400px; border: 1px solid #0f0; display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+    <div id="debugPanel" style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.95); color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 8px; z-index: 9999; width: 420px; max-height: 90vh; overflow-y: auto; border: 1px solid #0f0; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; position: sticky; top: 0; background: rgba(0,0,0,0.95); padding-bottom: 4px; border-bottom: 1px solid #0f0;">
             <strong>🔍 DEBUG (X zum Schließen)</strong>
             <button onclick="toggleDebug()" style="background: #333; color: #fff; border: 1px solid #666; padding: 2px 8px; cursor: pointer; font-size: 10px;">✕</button>
         </div>
+
         <div id="debugContent">
             <div><b>Results Array:</b> <span id="debugResults">-</span></div>
             <div><b>Symbol Names:</b> <span id="debugNames">-</span></div>
@@ -426,6 +427,111 @@
             <div><b>Ball Land Position:</b> <span id="debugBallLand">-</span></div>
             <div style="margin-top: 8px;">
                 <button onclick="toggleWheelNumbers()" style="background: #333; color: #0f0; border: 1px solid #0f0; padding: 4px 8px; cursor: pointer; font-size: 10px;">Toggle Wheel Numbers</button>
+            </div>
+
+            <hr style="border-color: #0f0; margin: 10px 0;">
+            <div style="color: #ff0;"><b>🎮 SPIELER-STATUS</b></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px;">
+                <label>Coins: <input type="number" id="dbgCoins" onchange="dbgSetCoins(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>Level: <input type="number" id="dbgLevel" onchange="dbgSetLevel(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>XP: <input type="number" id="dbgXP" onchange="dbgSetXP(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>Wins: <input type="number" id="dbgWinStreak" onchange="dbgSetWinStreak(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>Spins: <input type="number" id="dbgTotalSpins" onchange="dbgSetTotalSpins(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>Jackpots: <input type="number" id="dbgJackpotCount" onchange="dbgSetJackpotCount(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>Biggest: <input type="number" id="dbgBiggestWin" onchange="dbgSetBiggestWin(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+                <label>Combo: <input type="number" id="dbgComboCount" onchange="dbgSetComboCount(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+            </div>
+            <div style="margin-top: 4px;">
+                <label>Combo-Mult: <input type="number" step="0.1" id="dbgComboMultiplier" onchange="dbgSetComboMultiplier(this.value)" style="width: 70px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"></label>
+            </div>
+
+            <hr style="border-color: #0f0; margin: 10px 0;">
+            <div style="color: #ff0;"><b>⚙️ SPIEL-EINSTELLUNGEN</b></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px;">
+                <label>Einsatz:
+                    <select id="dbgBet" onchange="dbgSetBet(this.value)" style="width: 80px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                        <option value="10">10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="500">500</option>
+                        <option value="1000">1000</option>
+                    </select>
+                </label>
+                <label>Spin-Dauer: <input type="number" id="dbgSpinDuration" onchange="dbgSetSpinDuration(this.value)" style="width: 60px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">ms</label>
+                <label>Stop-Delay: <input type="number" id="dbgReelStopDelay" onchange="dbgSetReelStopDelay(this.value)" style="width: 60px; background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">ms</label>
+            </div>
+            <div style="margin-top: 6px; display: flex; gap: 12px;">
+                <label><input type="checkbox" id="dbgAutoSpin" onchange="dbgToggleAutoSpin(this.checked)"> Auto-Spin</label>
+                <label><input type="checkbox" id="dbgSound" onchange="dbgToggleSound(this.checked)"> Sound</label>
+            </div>
+
+            <hr style="border-color: #0f0; margin: 10px 0;">
+            <div style="color: #ff0;"><b>🎰 SPIN &amp; GEWINNCHANCEN</b></div>
+            <div style="margin-top: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                    <label>Spin-Speed: <span id="dbgSpinSpeedVal">1.0x</span></label>
+                </div>
+                <input type="range" id="dbgSpinSpeed" min="0.1" max="3.0" step="0.1" value="1.0" oninput="dbgSetSpinSpeed(this.value)" style="width: 100%; accent-color: #0f0;">
+                <div style="display: flex; justify-content: space-between; font-size: 9px; color: #888;">
+                    <span>0.1x (langsam)</span><span>3.0x (ultra)</span>
+                </div>
+            </div>
+            <div style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                    <label>Win-Boost: <span id="dbgWinBoostVal">0%</span></label>
+                </div>
+                <input type="range" id="dbgWinBoost" min="0" max="200" step="10" value="0" oninput="dbgSetWinBoost(this.value)" style="width: 100%; accent-color: #0f0;">
+                <div style="display: flex; justify-content: space-between; font-size: 9px; color: #888;">
+                    <span>0% (Normal)</span><span>200% (Max)</span>
+                </div>
+            </div>
+            <div style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                    <label>Match-Chance: <span id="dbgMatchChanceVal">0%</span></label>
+                </div>
+                <input type="range" id="dbgMatchChance" min="0" max="100" step="5" value="0" oninput="dbgSetMatchChance(this.value)" style="width: 100%; accent-color: #0f0;">
+                <div style="display: flex; justify-content: space-between; font-size: 9px; color: #888;">
+                    <span>0% (Zufall)</span><span>100% (Forced)</span>
+                </div>
+            </div>
+
+            <hr style="border-color: #0f0; margin: 10px 0;">
+            <div style="color: #ff0;"><b>🍒 SYMBOL-KONFIGURATION</b></div>
+            <div style="margin-top: 4px; font-size: 10px;">
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; margin-bottom: 2px; font-weight: bold;">
+                    <span></span><span>Value</span><span>Weight</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; align-items: center;">
+                    <span>🍒</span><input type="number" id="dbgVal0" onchange="dbgSetSymbolValue(0,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"><input type="number" id="dbgWgt0" onchange="dbgSetSymbolWeight(0,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                </div>
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; align-items: center; margin-top: 2px;">
+                    <span>🍋</span><input type="number" id="dbgVal1" onchange="dbgSetSymbolValue(1,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"><input type="number" id="dbgWgt1" onchange="dbgSetSymbolWeight(1,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                </div>
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; align-items: center; margin-top: 2px;">
+                    <span>🍇</span><input type="number" id="dbgVal2" onchange="dbgSetSymbolValue(2,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"><input type="number" id="dbgWgt2" onchange="dbgSetSymbolWeight(2,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                </div>
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; align-items: center; margin-top: 2px;">
+                    <span>🔔</span><input type="number" id="dbgVal3" onchange="dbgSetSymbolValue(3,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"><input type="number" id="dbgWgt3" onchange="dbgSetSymbolWeight(3,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                </div>
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; align-items: center; margin-top: 2px;">
+                    <span>💎</span><input type="number" id="dbgVal4" onchange="dbgSetSymbolValue(4,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"><input type="number" id="dbgWgt4" onchange="dbgSetSymbolWeight(4,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                </div>
+                <div style="display: grid; grid-template-columns: 30px 60px 60px; gap: 4px; align-items: center; margin-top: 2px;">
+                    <span>7️⃣</span><input type="number" id="dbgVal5" onchange="dbgSetSymbolValue(5,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;"><input type="number" id="dbgWgt5" onchange="dbgSetSymbolWeight(5,this.value)" style="background: #222; color: #0f0; border: 1px solid #0f0; font-family: monospace;">
+                </div>
+            </div>
+
+            <hr style="border-color: #0f0; margin: 10px 0;">
+            <div style="color: #ff0;"><b>🚀 AKTIONEN</b></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px;">
+                <button onclick="dbgAddCoins(100)" style="background: #1a472a; color: #0f0; border: 1px solid #0f0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">+100 Coins</button>
+                <button onclick="dbgAddCoins(1000)" style="background: #1a472a; color: #0f0; border: 1px solid #0f0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">+1000 Coins</button>
+                <button onclick="dbgForceWin()" style="background: #1a472a; color: #0f0; border: 1px solid #0f0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">Force Spin Win</button>
+                <button onclick="dbgClearCombo()" style="background: #1a472a; color: #0f0; border: 1px solid #0f0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">Clear Combo</button>
+                <button onclick="saveGameState()" style="background: #1a472a; color: #0f0; border: 1px solid #0f0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">💾 Save State</button>
+                <button onclick="loadGameState()" style="background: #1a472a; color: #0f0; border: 1px solid #0f0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">📂 Load State</button>
+                <button onclick="resetCoins()" style="background: #4a1a1a; color: #f44; border: 1px solid #f44; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">🔄 Reset All</button>
+                <button onclick="refreshDebugValues()" style="background: #333; color: #ff0; border: 1px solid #ff0; padding: 4px; cursor: pointer; font-size: 10px; font-family: monospace;">↻ Refresh</button>
             </div>
         </div>
     </div>

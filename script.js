@@ -14,8 +14,8 @@ const SYMBOLS = [
 // Gesamt: 173 (mehr Symbole = bessere Gewinnchance bei 3 gleichen)
 
 const REELS_COUNT = 5;
-const SPIN_DURATION = 3500; // Total spin time (staggered stops)
-const REEL_STOP_DELAY = 300; // Delay between each reel stopping
+let SPIN_DURATION = 3500; // Total spin time (staggered stops)
+let REEL_STOP_DELAY = 300; // Delay between each reel stopping
 
 // ==================== GAME STATE ====================
 let coins = 100;
@@ -32,6 +32,10 @@ let comboCount = 0;
 let autoSpin = false;
 let soundEnabled = true;
 let lastWinTime = 0;
+let spinSpeedMultiplier = 1.0;
+let winChanceBoost = 0;
+let forcedMatchChance = 0;
+let forcedMatchSymbol = null;
 
 // ==================== BET MULTIPLIER ====================
 function getBetMultiplier() {
@@ -234,7 +238,12 @@ function initializeReels() {
 }
 
 // ==================== GAME FUNCTIONS ====================
-function getRandomSymbol() {
+function getRandomSymbol(useForced = true) {
+    // Wenn forcedMatch aktiv ist und useForced erlaubt, gib das Symbol zurück
+    if (useForced && forcedMatchSymbol) {
+        return forcedMatchSymbol;
+    }
+
     // Gewinnchance massiv erhöhen bei niedrigen Einsätzen
     // Niedriger Einsatz = viel mehr hochwertige Symbole
     // Bei 10 Coins: ~60% Chance auf 3+ gleiche Symbole
@@ -258,6 +267,12 @@ function getRandomSymbol() {
             if (index < 2) {
                 newWeight = Math.max(5, s.weight * (1 - factor * 0.3));
             }
+        }
+
+        // DEBUG: Zusätzlicher Win-Boost (globale Gewinnchance)
+        if (winChanceBoost > 0 && index >= 2) {
+            const boost = (winChanceBoost / 100) * (index + 1) * 10;
+            newWeight += boost;
         }
 
         return { ...s, weight: newWeight };
@@ -314,7 +329,7 @@ async function spin() {
     // Pull lever animation
     const lever = document.getElementById('lever');
     lever.classList.add('pulled');
-    setTimeout(() => lever.classList.remove('pulled'), 500);
+    setTimeout(() => lever.classList.remove('pulled'), 500 / spinSpeedMultiplier);
 
     // Show spinning message
     showResult('🎰 DIE WALZEN DREHEN...', 'spinning');
@@ -323,6 +338,12 @@ async function spin() {
     document.querySelectorAll('.frame-light').forEach(light => {
         light.classList.add('active');
     });
+
+    // DEBUG: Forced Match vorbereiten
+    forcedMatchSymbol = null;
+    if (forcedMatchChance > 0 && Math.random() * 100 < forcedMatchChance) {
+        forcedMatchSymbol = getRandomSymbol(false); // Symbol ohne forcedMatch-Logik wählen
+    }
 
     // Generate results
     const results = [];
@@ -346,7 +367,7 @@ async function spin() {
         // Create long spinning strip
         let html = '';
         for (let j = 0; j < 30; j++) {
-            html += `<div class="symbol">${getRandomSymbol().emoji}</div>`;
+            html += `<div class="symbol">${getRandomSymbol(false).emoji}</div>`;
         }
         inner.innerHTML = html;
 
@@ -359,8 +380,8 @@ async function spin() {
 
     playSound('spin');
 
-    // Let all reels spin for a moment
-    await delay(800);
+    // Let all reels spin for a moment (skaliert mit Speed)
+    await delay(800 / spinSpeedMultiplier);
 
     // Stop reels one by one with realistic deceleration
     for (let i = 0; i < REELS_COUNT; i++) {
@@ -373,14 +394,14 @@ async function spin() {
         reel.classList.remove('spinning');
         playSound('stop');
 
-        // Delay before stopping next reel
+        // Delay before stopping next reel (skaliert mit Speed)
         if (i < REELS_COUNT - 1) {
-            await delay(300 + Math.random() * 100);
+            await delay((300 + Math.random() * 100) / spinSpeedMultiplier);
         }
     }
 
-    // Wait for animations to finish
-    await delay(500);
+    // Wait for animations to finish (skaliert mit Speed)
+    await delay(500 / spinSpeedMultiplier);
 
     // Check for wins
     const winData = calculateWin(results);
@@ -402,9 +423,9 @@ async function spin() {
     isSpinning = false;
     spinBtn.disabled = false;
 
-    // Auto spin
+    // Auto spin (skaliert mit Speed)
     if (autoSpin && coins >= currentBet) {
-        setTimeout(() => spin(), 1000);
+        setTimeout(() => spin(), 1000 / spinSpeedMultiplier);
     }
 }
 
@@ -416,15 +437,15 @@ async function stopReelWithBounce(inner, result, reelIndex) {
 
         // Create final strip with result symbol in the middle
         // Show 3 symbols: one above (random), the result in middle, one below (random)
-        const prevSymbol = getRandomSymbol();
-        const nextSymbol = getRandomSymbol();
+        const prevSymbol = getRandomSymbol(false);
+        const nextSymbol = getRandomSymbol(false);
 
         // Create a spinning strip that ends at the result
         let html = '';
         // Add some spinning symbols first for the slowdown effect
         const slowdownSymbols = 8 + Math.floor(Math.random() * 3);
         for (let j = 0; j < slowdownSymbols; j++) {
-            html += `<div class="symbol">${getRandomSymbol().emoji}</div>`;
+            html += `<div class="symbol">${getRandomSymbol(false).emoji}</div>`;
         }
         // Then add the final result position
         html += `<div class="symbol">${prevSymbol.emoji}</div>`;
@@ -448,6 +469,11 @@ async function stopReelWithBounce(inner, result, reelIndex) {
         inner.style.transform = 'translateY(0)';
         inner.offsetHeight; // Force reflow
 
+        // Skalierte Dauer für Tick-Sounds und Animation
+        const tickDelay = Math.max(10, 50 / spinSpeedMultiplier);
+        const animDuration = Math.max(50, (600 + reelIndex * 80) / spinSpeedMultiplier);
+        const resolveDelay = Math.max(50, (700 + reelIndex * 80) / spinSpeedMultiplier);
+
         // Play tick sounds during slowdown
         let tickCount = 0;
         const tickInterval = setInterval(() => {
@@ -457,11 +483,11 @@ async function stopReelWithBounce(inner, result, reelIndex) {
             } else {
                 clearInterval(tickInterval);
             }
-        }, 50);
+        }, tickDelay);
 
         // Start the slowdown animation
         requestAnimationFrame(() => {
-            inner.style.transition = `transform ${600 + reelIndex * 80}ms cubic-bezier(0.15, 0.8, 0.2, 1)`;
+            inner.style.transition = `transform ${animDuration}ms cubic-bezier(0.15, 0.8, 0.2, 1)`;
             inner.style.transform = `translateY(${targetPosition}px)`;
         });
 
@@ -470,7 +496,7 @@ async function stopReelWithBounce(inner, result, reelIndex) {
             clearInterval(tickInterval);
             inner.style.transition = '';
             resolve();
-        }, 700 + reelIndex * 80);
+        }, resolveDelay);
     });
 }
 
@@ -958,6 +984,139 @@ let debugVisible = false;
 function toggleDebug() {
     debugVisible = !debugVisible;
     document.getElementById('debugPanel').style.display = debugVisible ? 'block' : 'none';
+    if (debugVisible) {
+        refreshDebugValues();
+    }
+}
+
+function refreshDebugValues() {
+    document.getElementById('dbgCoins').value = coins;
+    document.getElementById('dbgLevel').value = level;
+    document.getElementById('dbgXP').value = xp;
+    document.getElementById('dbgWinStreak').value = winStreak;
+    document.getElementById('dbgTotalSpins').value = totalSpins;
+    document.getElementById('dbgJackpotCount').value = jackpotCount;
+    document.getElementById('dbgBiggestWin').value = biggestWin;
+    document.getElementById('dbgComboCount').value = comboCount;
+    document.getElementById('dbgComboMultiplier').value = comboMultiplier;
+    document.getElementById('dbgBet').value = currentBet;
+    document.getElementById('dbgSpinDuration').value = SPIN_DURATION;
+    document.getElementById('dbgReelStopDelay').value = REEL_STOP_DELAY;
+    document.getElementById('dbgAutoSpin').checked = autoSpin;
+    document.getElementById('dbgSound').checked = soundEnabled;
+
+    // Spin & Chancen Slider
+    const spinSpeedInput = document.getElementById('dbgSpinSpeed');
+    if (spinSpeedInput) {
+        spinSpeedInput.value = spinSpeedMultiplier;
+        document.getElementById('dbgSpinSpeedVal').textContent = spinSpeedMultiplier.toFixed(1) + 'x';
+    }
+    const winBoostInput = document.getElementById('dbgWinBoost');
+    if (winBoostInput) {
+        winBoostInput.value = winChanceBoost;
+        document.getElementById('dbgWinBoostVal').textContent = winChanceBoost + '%';
+    }
+    const matchChanceInput = document.getElementById('dbgMatchChance');
+    if (matchChanceInput) {
+        matchChanceInput.value = forcedMatchChance;
+        document.getElementById('dbgMatchChanceVal').textContent = forcedMatchChance + '%';
+    }
+
+    SYMBOLS.forEach((s, i) => {
+        const valInput = document.getElementById(`dbgVal${i}`);
+        const wgtInput = document.getElementById(`dbgWgt${i}`);
+        if (valInput) valInput.value = s.value;
+        if (wgtInput) wgtInput.value = s.weight;
+    });
+}
+
+// ---- DEBUG SETTERS ----
+function dbgSetCoins(v) { coins = parseInt(v) || 0; updateUI(); }
+function dbgSetLevel(v) { level = parseInt(v) || 1; updateUI(); }
+function dbgSetXP(v) { xp = parseInt(v) || 0; updateUI(); }
+function dbgSetWinStreak(v) { winStreak = parseInt(v) || 0; updateUI(); }
+function dbgSetTotalSpins(v) { totalSpins = parseInt(v) || 0; updateUI(); }
+function dbgSetJackpotCount(v) { jackpotCount = parseInt(v) || 0; updateUI(); }
+function dbgSetBiggestWin(v) { biggestWin = parseInt(v) || 0; updateUI(); }
+function dbgSetComboCount(v) {
+    comboCount = parseInt(v) || 0;
+    if (comboCount >= 3) {
+        comboMultiplier = Math.min(1 + (comboCount - 2) * 0.5, 5);
+        showHotStreak();
+    } else {
+        comboMultiplier = 1;
+        hideHotStreak();
+    }
+    updateUI();
+}
+function dbgSetComboMultiplier(v) {
+    comboMultiplier = parseFloat(v) || 1;
+    updateUI();
+}
+function dbgSetBet(v) {
+    const amount = parseInt(v);
+    if (amount) selectBet(amount);
+}
+function dbgSetSpinDuration(v) { SPIN_DURATION = parseInt(v) || 3500; }
+function dbgSetReelStopDelay(v) { REEL_STOP_DELAY = parseInt(v) || 300; }
+function dbgSetSpinSpeed(v) {
+    spinSpeedMultiplier = parseFloat(v) || 1.0;
+    const valEl = document.getElementById('dbgSpinSpeedVal');
+    if (valEl) valEl.textContent = spinSpeedMultiplier.toFixed(1) + 'x';
+}
+function dbgSetWinBoost(v) {
+    winChanceBoost = parseInt(v) || 0;
+    const valEl = document.getElementById('dbgWinBoostVal');
+    if (valEl) valEl.textContent = winChanceBoost + '%';
+}
+function dbgSetMatchChance(v) {
+    forcedMatchChance = parseInt(v) || 0;
+    const valEl = document.getElementById('dbgMatchChanceVal');
+    if (valEl) valEl.textContent = forcedMatchChance + '%';
+}
+function dbgToggleAutoSpin(checked) {
+    autoSpin = checked;
+    const icon = document.getElementById('autoSpinIcon');
+    const text = document.getElementById('autoSpinText');
+    if (icon) icon.textContent = autoSpin ? '⏹️' : '▶️';
+    if (text) text.textContent = autoSpin ? 'Auto Stop' : 'Auto Spin';
+}
+function dbgToggleSound(checked) {
+    soundEnabled = checked;
+    const icon = document.getElementById('soundIcon');
+    const text = document.getElementById('soundText');
+    if (icon) icon.textContent = soundEnabled ? '🔊' : '🔇';
+    if (text) text.textContent = soundEnabled ? 'Sound ON' : 'Sound OFF';
+}
+function dbgSetSymbolValue(index, v) {
+    if (SYMBOLS[index]) SYMBOLS[index].value = parseInt(v) || 1;
+}
+function dbgSetSymbolWeight(index, v) {
+    if (SYMBOLS[index]) SYMBOLS[index].weight = parseInt(v) || 1;
+}
+function dbgAddCoins(amount) {
+    coins += amount;
+    updateUI();
+    createFloatingText(`+${amount} DEBUG`, window.innerWidth / 2, window.innerHeight / 2);
+}
+function dbgClearCombo() {
+    comboCount = 0;
+    comboMultiplier = 1;
+    hideHotStreak();
+    updateUI();
+}
+function dbgForceWin() {
+    // Setzt alle Gewichtungen auf 0 außer das erste Symbol, damit garantiert 5x 🍒 kommt
+    const originalWeights = SYMBOLS.map(s => s.weight);
+    SYMBOLS.forEach(s => s.weight = 0);
+    SYMBOLS[0].weight = 9999;
+
+    // Spin auslösen
+    spin().then(() => {
+        // Gewichtungen wiederherstellen
+        SYMBOLS.forEach((s, i) => s.weight = originalWeights[i]);
+        showResult('🛠️ DEBUG WIN erzwungen!', 'win');
+    });
 }
 
 function updateDebugPanel(results, winData) {
